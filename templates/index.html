@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Generation</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Add this CSS for chat-like interface */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        input[type="number"] {
+            width: 50px;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .chat-display {
+            max-height: 300px; /* Adjust as needed */
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .message-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .user-message {
+            flex: 1;
+            margin-right: 10px;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            word-wrap: break-word;
+        }
+
+        .assistant-message {
+            flex: 1;
+            margin-left: 10px;
+            background-color: #f0f0f0;
+            color: #000;
+            padding: 10px;
+            border-radius: 10px;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>Code Generation</h1>
+        <div class="container">
+            <div class="form-section">
+                <label for="prompt">Prompt:</label>
+                <textarea id="prompt" rows="5" cols="50" placeholder="Enter your prompt here..."></textarea>
+            </div>
+            <div class="form-section">
+                <label for="temperature">Temperature:</label>
+                <input type="number" id="temperature" name="temperature" min="0" max="1" step="0.1" value="1.0">
+            </div>
+            <button onclick="generateCode()">Generate Code</button>
+        </div>
+        <div class="chat-display" id="chat-display"></div>
+    </div>
+
+    <script>
+        function generateCode() {
+            var prompt = document.getElementById("prompt").value;
+            var temperature = document.getElementById("temperature").value;
+
+            var data = {
+                prompt: prompt,
+                temperature: temperature
+            };
+
+            fetch('/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.completion) {
+                    displayMessage("user", prompt);
+                    displayMessage("assistant", data.completion);
+                } else if (data.error) {
+                    displayMessage("assistant", "Error: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                displayMessage("assistant", "An error occurred. Please try again.");
+            });
+        }
+
+        function displayMessage(sender, message) {
+            var chatDisplay = document.getElementById("chat-display");
+            var messageContainer = document.createElement("div");
+            var messageElement = document.createElement("div");
+
+            messageContainer.classList.add("message-container");
+            messageElement.classList.add(sender === "user" ? "user-message" : "assistant-message");
+            messageElement.textContent = message;
+
+            messageContainer.appendChild(messageElement);
+            chatDisplay.appendChild(messageContainer);
+
+            // Scroll to the bottom of the chat display
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+        }
+    </script>
+</body>
+</html>
