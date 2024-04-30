@@ -36,7 +36,7 @@ def main():
             result = search_stackoverflow(query)
             print(result)
         else:
-            print("Command not recognized. Try 'search <your query>'.")
+            print("Command not recognized.")
 
 if __name__ == "__main__":
     main()
