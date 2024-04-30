@@ -1,10 +1,8 @@
 const bp = require('botpress');
 
-// Rest of your code goes here...
 
 const axios = require('axios');
 
-// Define a custom action in Botpress
 bp.hear(/(.*)/, async (event, next) => {
 
   const userInput = event.text;
